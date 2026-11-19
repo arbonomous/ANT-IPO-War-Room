@@ -1,10 +1,14 @@
 import { memo, useMemo, useState } from 'react';
-import { Clock, ExternalLink, Maximize2, Minimize2, X } from 'lucide-react';
+import { Clock, ExternalLink, Maximize2, Minimize2, X, Zap } from 'lucide-react';
 import { IPO_CONSTANTS, TICKER_TAPE_SYMBOLS } from '../data/ipoData';
+import { getHlCoinForSymbol } from '../lib/hyperliquidFeed';
+import { RealtimeCandleChart } from './RealtimeCandleChart';
 import { TradingViewEmbed } from './TradingViewEmbed';
 
 const ADVANCED_CHART_SCRIPT =
   'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+
+type ChartFeedMode = 'realtime' | 'tradingview';
 
 interface AdvancedChartPanelProps {
   activeSymbol: string;
@@ -15,8 +19,13 @@ function AdvancedChartPanelComponent({
   activeSymbol,
   onSelectSymbol,
 }: AdvancedChartPanelProps) {
+  const [feedMode, setFeedMode] = useState<ChartFeedMode>('realtime');
   const [expanded, setExpanded] = useState(false);
   const [showIpoNotice, setShowIpoNotice] = useState(true);
+
+  const hlCoin = getHlCoinForSymbol(activeSymbol);
+  const effectiveMode: ChartFeedMode =
+    feedMode === 'realtime' && hlCoin ? 'realtime' : 'tradingview';
 
   const configJson = useMemo(
     () =>
@@ -58,12 +67,44 @@ function AdvancedChartPanelComponent({
       <div className="panel-header">
         <div className="panel-title-group">
           <h2 className="panel-title">LIVE EXECUTION CHART</h2>
-          <span className="panel-badge panel-badge--emerald">{activeSymbol}</span>
-          <div className="study-chips" aria-label="Preloaded chart indicators">
-            <span className="study-chip">5M</span>
-            <span className="study-chip">VWAP</span>
-            <span className="study-chip">EMA 9 / 21</span>
-            <span className="study-chip">RSI</span>
+          <span className="panel-badge panel-badge--emerald">
+            {effectiveMode === 'realtime' && hlCoin ? hlCoin : activeSymbol}
+          </span>
+
+          {/* 0-Delay Real-Time vs TradingView Embed Switcher */}
+          <div
+            className="feed-mode-toggle"
+            role="tablist"
+            aria-label="Chart data feed mode"
+          >
+            <button
+              id="chart-mode-realtime"
+              type="button"
+              role="tab"
+              aria-selected={effectiveMode === 'realtime'}
+              disabled={!hlCoin}
+              className={`feed-mode-btn${effectiveMode === 'realtime' ? ' active-rt' : ''}`}
+              onClick={() => setFeedMode('realtime')}
+              title={
+                hlCoin
+                  ? `0-delay live WebSocket candlesticks (${hlCoin})`
+                  : 'Real-time perp feed not available for QQQ'
+              }
+            >
+              <Zap size={10} />
+              <span>0-DELAY LIVE</span>
+            </button>
+            <button
+              id="chart-mode-tradingview"
+              type="button"
+              role="tab"
+              aria-selected={effectiveMode === 'tradingview'}
+              className={`feed-mode-btn${effectiveMode === 'tradingview' ? ' active-tv' : ''}`}
+              onClick={() => setFeedMode('tradingview')}
+              title="Official TradingView widget with drawing tools (15m delayed Cboe One US stocks)"
+            >
+              <span>TRADINGVIEW (15M)</span>
+            </button>
           </div>
         </div>
 
@@ -112,32 +153,31 @@ function AdvancedChartPanelComponent({
         </div>
       </div>
 
-      {/* Helpful IPO Opening Cross & 15-min Cboe Feed Notice */}
-      {isAntSelected && showIpoNotice && (
+      {/* Show 15m Cboe delay notice only when user switches to TradingView embed mode on ANT */}
+      {effectiveMode === 'tradingview' && isAntSelected && showIpoNotice && (
         <div className="ipo-cross-notice" role="note">
           <div className="ipo-cross-notice-text">
             <Clock size={12} color="#F59E0B" style={{ flexShrink: 0 }} />
             <span>
-              <strong>IPO Opening Cross:</strong> NASDAQ IPOs begin trading after the
-              underwriter opening auction (typically 11:30 AM – 1:30 PM ET). Free
-              TradingView embeds use the 15-min delayed Cboe One feed, so{' '}
-              <span className="mono">ANT</span> candles populate ~15m after the first
-              print.
+              <strong>TradingView Free Embed (15m Delay):</strong> US stock widgets use
+              the 15-min delayed Cboe One feed. Switch back to{' '}
+              <span className="mono">0-DELAY LIVE</span> for sub-second streaming{' '}
+              <span className="mono">xyz:ANT</span> candles.
             </span>
           </div>
           <div className="ipo-cross-notice-actions">
             <button
               type="button"
               className="ipo-notice-peer-btn mono"
-              onClick={() => onSelectSymbol('NASDAQ:NVDA')}
+              onClick={() => setFeedMode('realtime')}
             >
-              Preview Live NVDA
+              Switch to 0-Delay Live
             </button>
             <button
               type="button"
               className="ipo-notice-close"
               onClick={() => setShowIpoNotice(false)}
-              aria-label="Dismiss IPO opening cross notice"
+              aria-label="Dismiss TradingView delay notice"
             >
               <X size={12} />
             </button>
@@ -145,16 +185,24 @@ function AdvancedChartPanelComponent({
         </div>
       )}
 
-      <div
-        className={`chart-widget-frame${expanded ? ' chart-widget-frame--expanded' : ''}`}
-      >
-        <TradingViewEmbed
-          scriptSrc={ADVANCED_CHART_SCRIPT}
-          configJson={configJson}
-          fillHeight
-          ariaLabel={`TradingView Advanced Real-Time Chart for ${activeSymbol}`}
+      {effectiveMode === 'realtime' && hlCoin ? (
+        <RealtimeCandleChart
+          hlCoin={hlCoin}
+          expanded={expanded}
+          onFallbackToTradingView={() => setFeedMode('tradingview')}
         />
-      </div>
+      ) : (
+        <div
+          className={`chart-widget-frame${expanded ? ' chart-widget-frame--expanded' : ''}`}
+        >
+          <TradingViewEmbed
+            scriptSrc={ADVANCED_CHART_SCRIPT}
+            configJson={configJson}
+            fillHeight
+            ariaLabel={`TradingView Advanced Real-Time Chart for ${activeSymbol}`}
+          />
+        </div>
+      )}
 
       <div className="chart-footnote-bar">
         <div className="chart-footnote-levels">
@@ -172,7 +220,11 @@ function AdvancedChartPanelComponent({
             <span>S-1 FLOOR $78 / $70</span>
           </span>
         </div>
-        <span>STUDIES: VWAP • EMA / SMA • RSI • VOL</span>
+        <span>
+          {effectiveMode === 'realtime'
+            ? 'FEED: HYPERLIQUID HIP-3 0-DELAY WEBSOCKET • VWAP • EMA 9/21 • RSI • VOL'
+            : 'FEED: TRADINGVIEW CBOE ONE (15M DELAY) • VWAP • EMA/SMA • RSI • VOL'}
+        </span>
       </div>
     </section>
   );

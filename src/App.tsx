@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { AdvancedChartPanel } from './components/AdvancedChartPanel';
 import { BattlegroundStrip } from './components/BattlegroundStrip';
+import { LiveRealtimeRibbon } from './components/LiveRealtimeRibbon';
 import { LockupCountdownPanel } from './components/LockupCountdownPanel';
 import { TechnicalGaugePanel } from './components/TechnicalGaugePanel';
 import { TerminalFooter } from './components/TerminalFooter';
@@ -91,6 +92,9 @@ export function App() {
       <TerminalHeader onShareLink={handleShareLink} copied={copied} />
 
       <main className="terminal-main">
+        {/* Real-Time 0-Delay Live Price Ribbon (Hyperliquid xyz:ANT) */}
+        <LiveRealtimeRibbon onSyncLivePrice={handleSelectPriceLevel} />
+
         {/* Module 2: IPO Reference & Key Battleground Levels Strip */}
         <BattlegroundStrip onSelectPriceLevel={handleSelectPriceLevel} />
 
