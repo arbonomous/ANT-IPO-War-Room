@@ -21,10 +21,12 @@ import {
   type HlCandle,
   type HlInterval,
 } from '../lib/hyperliquidFeed';
+import { THEME_MAP, type ThemeId } from '../lib/themes';
 
 interface RealtimeCandleChartProps {
   hlCoin: string;
   expanded: boolean;
+  themeId: ThemeId;
   onFallbackToTradingView: () => void;
 }
 
@@ -54,6 +56,7 @@ function formatCandleTime(unixSec: number): string {
 function RealtimeCandleChartComponent({
   hlCoin,
   expanded,
+  themeId,
   onFallbackToTradingView,
 }: RealtimeCandleChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -66,11 +69,15 @@ function RealtimeCandleChartComponent({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [readout, setReadout] = useState<ReadoutState | null>(null);
 
+  const chartRef = useRef<IChartApi | null>(null);
+  const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
   const vwapSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const ema9SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const ema21SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const showVwapRef = useRef(showVwap);
   const showEmaRef = useRef(showEma);
+  const paletteRef = useRef(THEME_MAP[themeId]);
 
   // Sync overlay visibility toggles without rebuilding chart
   useEffect(() => {
@@ -84,56 +91,102 @@ function RealtimeCandleChartComponent({
     ema21SeriesRef.current?.applyOptions({ visible: showEma });
   }, [showEma]);
 
+  // Live-update chart & series colors when theme changes (zero WebSocket interruption)
+  useEffect(() => {
+    const p = THEME_MAP[themeId];
+    paletteRef.current = p;
+
+    chartRef.current?.applyOptions({
+      layout: {
+        background: { type: ColorType.Solid, color: p.chartBg },
+        textColor: p.chartText,
+      },
+      grid: {
+        vertLines: { color: p.chartGrid },
+        horzLines: { color: p.chartGrid },
+      },
+      crosshair: {
+        vertLine: { color: p.crosshair, labelBackgroundColor: p.crosshairLabel },
+        horzLine: { color: p.crosshair, labelBackgroundColor: p.crosshairLabel },
+      },
+      rightPriceScale: { borderColor: p.border },
+      timeScale: { borderColor: p.border },
+    });
+
+    candleSeriesRef.current?.applyOptions({
+      upColor: p.bull,
+      downColor: p.bear,
+      wickUpColor: p.bull,
+      wickDownColor: p.bear,
+    });
+    vwapSeriesRef.current?.applyOptions({ color: p.amber });
+    ema9SeriesRef.current?.applyOptions({ color: p.ema9 });
+    ema21SeriesRef.current?.applyOptions({ color: p.ema21 });
+
+    if (volumeSeriesRef.current && candlesRef.current.length > 0) {
+      volumeSeriesRef.current.setData(
+        candlesRef.current.map((c) => ({
+          time: c.time as UTCTimestamp,
+          value: c.volume,
+          color: c.close >= c.open ? p.volUp : p.volDown,
+        })),
+      );
+    }
+  }, [themeId]);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
+    const p = paletteRef.current;
     setLoading(true);
     setLoadError(null);
     candlesRef.current = [];
 
     const chart: IChartApi = createChart(el, {
       layout: {
-        background: { type: ColorType.Solid, color: '#0E1015' },
-        textColor: '#9AA3B2',
+        background: { type: ColorType.Solid, color: p.chartBg },
+        textColor: p.chartText,
         fontFamily: "'JetBrains Mono', ui-monospace, monospace",
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: 'rgba(38, 43, 54, 0.42)' },
-        horzLines: { color: 'rgba(38, 43, 54, 0.42)' },
+        vertLines: { color: p.chartGrid },
+        horzLines: { color: p.chartGrid },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: 'rgba(230, 233, 239, 0.22)',
-          labelBackgroundColor: '#262B36',
+          color: p.crosshair,
+          labelBackgroundColor: p.crosshairLabel,
         },
         horzLine: {
-          color: 'rgba(230, 233, 239, 0.22)',
-          labelBackgroundColor: '#262B36',
+          color: p.crosshair,
+          labelBackgroundColor: p.crosshairLabel,
         },
       },
       rightPriceScale: {
-        borderColor: '#262B36',
+        borderColor: p.border,
         scaleMargins: { top: 0.08, bottom: 0.22 },
       },
       timeScale: {
-        borderColor: '#262B36',
+        borderColor: p.border,
         timeVisible: true,
         secondsVisible: false,
       },
       width: el.clientWidth,
       height: el.clientHeight,
     });
+    chartRef.current = chart;
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#34B889',
-      downColor: '#DF6A73',
+      upColor: p.bull,
+      downColor: p.bear,
       borderVisible: false,
-      wickUpColor: '#34B889',
-      wickDownColor: '#DF6A73',
+      wickUpColor: p.bull,
+      wickDownColor: p.bear,
     });
+    candleSeriesRef.current = candleSeries;
 
     const volumeSeries = chart.addSeries(HistogramSeries, {
       priceFormat: { type: 'volume' },
@@ -142,9 +195,10 @@ function RealtimeCandleChartComponent({
     volumeSeries.priceScale().applyOptions({
       scaleMargins: { top: 0.82, bottom: 0 },
     });
+    volumeSeriesRef.current = volumeSeries;
 
     const vwapSeries = chart.addSeries(LineSeries, {
-      color: '#DBA54C',
+      color: p.amber,
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -153,7 +207,7 @@ function RealtimeCandleChartComponent({
     vwapSeriesRef.current = vwapSeries;
 
     const ema9Series = chart.addSeries(LineSeries, {
-      color: '#5CC8A1',
+      color: p.ema9,
       lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -162,7 +216,7 @@ function RealtimeCandleChartComponent({
     ema9SeriesRef.current = ema9Series;
 
     const ema21Series = chart.addSeries(LineSeries, {
-      color: '#73A8E8',
+      color: p.ema21,
       lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -174,7 +228,7 @@ function RealtimeCandleChartComponent({
     if (hlCoin === 'xyz:ANT') {
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.ipoOfferPrice,
-        color: '#34B889',
+        color: p.bull,
         lineWidth: 1,
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
@@ -182,7 +236,7 @@ function RealtimeCandleChartComponent({
       });
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.s1RangeHigh,
-        color: '#DBA54C',
+        color: p.amber,
         lineWidth: 1,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
@@ -190,7 +244,7 @@ function RealtimeCandleChartComponent({
       });
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.s1RangeLow,
-        color: '#DF6A73',
+        color: p.bear,
         lineWidth: 1,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
@@ -226,6 +280,7 @@ function RealtimeCandleChartComponent({
     };
 
     const syncAllSeries = (list: HlCandle[], fit = false) => {
+      const activeP = paletteRef.current;
       candleSeries.setData(
         list.map((c) => ({
           time: c.time as UTCTimestamp,
@@ -239,28 +294,25 @@ function RealtimeCandleChartComponent({
         list.map((c) => ({
           time: c.time as UTCTimestamp,
           value: c.volume,
-          color:
-            c.close >= c.open
-              ? 'rgba(52, 184, 137, 0.28)'
-              : 'rgba(223, 106, 115, 0.28)',
+          color: c.close >= c.open ? activeP.volUp : activeP.volDown,
         })),
       );
       vwapSeries.setData(
-        computeSessionVwap(list).map((p) => ({
-          time: p.time as UTCTimestamp,
-          value: p.value,
+        computeSessionVwap(list).map((pt) => ({
+          time: pt.time as UTCTimestamp,
+          value: pt.value,
         })),
       );
       ema9Series.setData(
-        computeEma(list, 9).map((p) => ({
-          time: p.time as UTCTimestamp,
-          value: p.value,
+        computeEma(list, 9).map((pt) => ({
+          time: pt.time as UTCTimestamp,
+          value: pt.value,
         })),
       );
       ema21Series.setData(
-        computeEma(list, 21).map((p) => ({
-          time: p.time as UTCTimestamp,
-          value: p.value,
+        computeEma(list, 21).map((pt) => ({
+          time: pt.time as UTCTimestamp,
+          value: pt.value,
         })),
       );
 
@@ -312,6 +364,7 @@ function RealtimeCandleChartComponent({
               }
               candlesRef.current = next;
 
+              const activeP = paletteRef.current;
               candleSeries.update({
                 time: incoming.time as UTCTimestamp,
                 open: incoming.open,
@@ -322,10 +375,7 @@ function RealtimeCandleChartComponent({
               volumeSeries.update({
                 time: incoming.time as UTCTimestamp,
                 value: incoming.volume,
-                color:
-                  incoming.close >= incoming.open
-                    ? 'rgba(52, 184, 137, 0.28)'
-                    : 'rgba(223, 106, 115, 0.28)',
+                color: incoming.close >= incoming.open ? activeP.volUp : activeP.volDown,
               });
               const vwapArr = computeSessionVwap(next);
               const ema9Arr = computeEma(next, 9);
@@ -379,6 +429,9 @@ function RealtimeCandleChartComponent({
       controller.abort();
       stream?.destroy();
       resizeObs.disconnect();
+      chartRef.current = null;
+      candleSeriesRef.current = null;
+      volumeSeriesRef.current = null;
       vwapSeriesRef.current = null;
       ema9SeriesRef.current = null;
       ema21SeriesRef.current = null;

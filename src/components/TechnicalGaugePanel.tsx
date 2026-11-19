@@ -7,6 +7,7 @@ import {
   evaluateTechnicals,
   type TechnicalSummary,
 } from '../lib/technicalEngine';
+import { THEME_MAP, type ThemeId } from '../lib/themes';
 import { TradingViewEmbed } from './TradingViewEmbed';
 
 const TECHNICAL_ANALYSIS_SCRIPT =
@@ -16,19 +17,18 @@ type TaInterval = '15m' | '1h';
 
 interface TechnicalGaugePanelProps {
   symbol: string;
+  themeId: ThemeId;
 }
 
-function getVerdictColor(verdict: TechnicalSummary['verdict']): string {
-  if (verdict === 'STRONG BUY' || verdict === 'BUY') return '#34B889';
-  if (verdict === 'STRONG SELL' || verdict === 'SELL') return '#DF6A73';
-  return '#9AA3B2';
-}
-
-function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
+function TechnicalGaugePanelComponent({
+  symbol,
+  themeId,
+}: TechnicalGaugePanelProps) {
   const [interval, setInterval] = useState<TaInterval>('15m');
   const [summary, setSummary] = useState<TechnicalSummary | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const palette = THEME_MAP[themeId];
   const hlCoin = getHlCoinForSymbol(symbol);
 
   useEffect(() => {
@@ -83,17 +83,23 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
         showIntervalTabs: true,
         displayMode: 'single',
         locale: 'en',
-        colorTheme: 'dark',
-        theme: 'dark',
+        colorTheme: palette.tvTheme,
+        theme: palette.tvTheme,
       }),
-    [interval, symbol],
+    [interval, symbol, palette.tvTheme],
   );
 
   // Needle angle mapped cleanly from -72 deg (Strong Sell) to +72 deg (Strong Buy)
   const needleDeg = summary
     ? Math.max(-72, Math.min(72, summary.score * 78))
     : 0;
-  const verdictColor = summary ? getVerdictColor(summary.verdict) : '#9AA3B2';
+  const verdictColor = !summary
+    ? palette.muted
+    : summary.verdict === 'STRONG BUY' || summary.verdict === 'BUY'
+      ? palette.bull
+      : summary.verdict === 'STRONG SELL' || summary.verdict === 'SELL'
+        ? palette.bear
+        : palette.muted;
 
   return (
     <section
@@ -165,44 +171,44 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                   <path
                     d="M 24 126 A 106 106 0 0 1 65 42"
                     fill="none"
-                    stroke="#DF6A73"
+                    stroke={palette.bear}
                     strokeWidth="9.5"
-                    opacity="0.78"
+                    opacity="0.82"
                   />
                   <path
                     d="M 69 39 A 106 106 0 0 1 112 22"
                     fill="none"
-                    stroke="#DF6A73"
+                    stroke={palette.bear}
                     strokeWidth="9.5"
                     opacity="0.42"
                   />
                   <path
                     d="M 116 21 A 106 106 0 0 1 144 21"
                     fill="none"
-                    stroke="#6F7889"
+                    stroke={palette.muted}
                     strokeWidth="9.5"
                     opacity="0.52"
                   />
                   <path
                     d="M 148 22 A 106 106 0 0 1 191 39"
                     fill="none"
-                    stroke="#34B889"
+                    stroke={palette.bull}
                     strokeWidth="9.5"
                     opacity="0.48"
                   />
                   <path
                     d="M 195 42 A 106 106 0 0 1 236 126"
                     fill="none"
-                    stroke="#34B889"
+                    stroke={palette.bull}
                     strokeWidth="9.5"
-                    opacity="0.82"
+                    opacity="0.86"
                   />
 
                   {/* Labels */}
                   <text
                     x="14"
                     y="140"
-                    fill="#DF6A73"
+                    fill={palette.bear}
                     fontSize="8.5"
                     fontFamily="JetBrains Mono, monospace"
                     fontWeight="700"
@@ -212,7 +218,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                   <text
                     x="130"
                     y="12"
-                    fill="#6F7889"
+                    fill={palette.muted}
                     fontSize="8.5"
                     fontFamily="JetBrains Mono, monospace"
                     textAnchor="middle"
@@ -222,7 +228,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                   <text
                     x="246"
                     y="140"
-                    fill="#34B889"
+                    fill={palette.bull}
                     fontSize="8.5"
                     fontFamily="JetBrains Mono, monospace"
                     fontWeight="700"
@@ -241,7 +247,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                       y1="126"
                       x2="130"
                       y2="34"
-                      stroke="#E6E9EF"
+                      stroke={palette.needle}
                       strokeWidth="2.5"
                       strokeLinecap="round"
                     />
@@ -250,7 +256,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                       cy="126"
                       r="5.5"
                       fill={verdictColor}
-                      stroke="#0E1015"
+                      stroke={palette.chartBg}
                       strokeWidth="2"
                     />
                   </g>

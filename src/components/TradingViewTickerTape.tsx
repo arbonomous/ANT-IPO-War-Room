@@ -1,11 +1,18 @@
 import { memo, useMemo } from 'react';
 import { TICKER_TAPE_SYMBOLS } from '../data/ipoData';
+import { THEME_MAP, type ThemeId } from '../lib/themes';
 import { TradingViewEmbed } from './TradingViewEmbed';
 
 const TICKER_TAPE_SCRIPT =
   'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
 
-function TradingViewTickerTapeComponent() {
+interface TradingViewTickerTapeProps {
+  themeId: ThemeId;
+}
+
+function TradingViewTickerTapeComponent({ themeId }: TradingViewTickerTapeProps) {
+  const tvTheme = THEME_MAP[themeId].tvTheme;
+
   const configJson = useMemo(
     () =>
       JSON.stringify({
@@ -16,11 +23,11 @@ function TradingViewTickerTapeComponent() {
         showSymbolLogo: true,
         isTransparent: true,
         displayMode: 'adaptive',
-        colorTheme: 'dark',
-        theme: 'dark',
+        colorTheme: tvTheme,
+        theme: tvTheme,
         locale: 'en',
       }),
-    [],
+    [tvTheme],
   );
 
   return (

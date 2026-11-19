@@ -11,6 +11,12 @@ import { TradingViewTickerTape } from './components/TradingViewTickerTape';
 import { ValuationCalculatorPanel } from './components/ValuationCalculatorPanel';
 import { WarRoomFloorPanel } from './components/WarRoomFloorPanel';
 import { IPO_CONSTANTS } from './data/ipoData';
+import {
+  THEME_MAP,
+  applyTheme,
+  getInitialTheme,
+  type ThemeId,
+} from './lib/themes';
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
   if (navigator.clipboard && window.isSecureContext) {
@@ -39,6 +45,7 @@ async function copyTextToClipboard(text: string): Promise<boolean> {
 }
 
 export function App() {
+  const [themeId, setThemeId] = useState<ThemeId>(() => getInitialTheme());
   const [activeSymbol, setActiveSymbol] = useState<string>(IPO_CONSTANTS.ticker);
   const [calcPriceInput, setCalcPriceInput] = useState<string>(
     IPO_CONSTANTS.ipoOfferPrice.toFixed(2),
@@ -46,6 +53,10 @@ export function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const toastTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    applyTheme(themeId);
+  }, [themeId]);
 
   const showToast = useCallback((message: string) => {
     setToastMessage(message);
@@ -65,6 +76,14 @@ export function App() {
       }
     };
   }, []);
+
+  const handleSelectTheme = useCallback(
+    (next: ThemeId) => {
+      setThemeId(next);
+      showToast(`Theme: ${THEME_MAP[next].label} (${THEME_MAP[next].description})`);
+    },
+    [showToast],
+  );
 
   const handleShareLink = useCallback(async () => {
     const url = window.location.href;
@@ -88,8 +107,13 @@ export function App() {
   return (
     <div className="war-room-shell">
       {/* Module 1: Top TradingView Ticker Tape + Compact Status Bar */}
-      <TradingViewTickerTape />
-      <TerminalHeader onShareLink={handleShareLink} copied={copied} />
+      <TradingViewTickerTape themeId={themeId} />
+      <TerminalHeader
+        onShareLink={handleShareLink}
+        copied={copied}
+        themeId={themeId}
+        onSelectTheme={handleSelectTheme}
+      />
 
       <main className="terminal-main">
         {/* Real-Time 0-Delay Live Price Ribbon (Hyperliquid xyz:ANT) */}
@@ -104,6 +128,7 @@ export function App() {
             <AdvancedChartPanel
               activeSymbol={activeSymbol}
               onSelectSymbol={setActiveSymbol}
+              themeId={themeId}
             />
             <WarRoomFloorPanel onSelectPriceLevel={handleSelectPriceLevel} />
           </div>
@@ -121,8 +146,8 @@ export function App() {
               onPriceInputChange={setCalcPriceInput}
             />
 
-            {/* Panel C — TradingView Technical Analysis Gauge */}
-            <TechnicalGaugePanel symbol={activeSymbol} />
+            {/* Panel C — Live Technical Analysis Consensus Gauge */}
+            <TechnicalGaugePanel symbol={activeSymbol} themeId={themeId} />
           </aside>
         </div>
       </main>
@@ -134,7 +159,7 @@ export function App() {
       {toastMessage && (
         <div className="toast-container" role="status" aria-live="polite">
           <div className="toast-pill">
-            <CheckCircle2 size={14} color="#34B889" />
+            <CheckCircle2 size={14} color={THEME_MAP[themeId].bull} />
             <span>{toastMessage}</span>
           </div>
         </div>

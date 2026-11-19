@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Check, Share2 } from 'lucide-react';
 import { IPO_CONSTANTS } from '../data/ipoData';
+import { THEMES, type ThemeId } from '../lib/themes';
 
 interface TerminalHeaderProps {
   onShareLink: () => void;
   copied: boolean;
+  themeId: ThemeId;
+  onSelectTheme: (theme: ThemeId) => void;
 }
 
 function formatEtTime(date: Date): string {
@@ -21,7 +24,12 @@ function formatEtTime(date: Date): string {
   }
 }
 
-export function TerminalHeader({ onShareLink, copied }: TerminalHeaderProps) {
+export function TerminalHeader({
+  onShareLink,
+  copied,
+  themeId,
+  onSelectTheme,
+}: TerminalHeaderProps) {
   const [etClock, setEtClock] = useState<string>(() => formatEtTime(new Date()));
 
   useEffect(() => {
@@ -56,6 +64,35 @@ export function TerminalHeader({ onShareLink, copied }: TerminalHeaderProps) {
             <span>IPO {IPO_CONSTANTS.ipoDateLabel}</span>
             <span className="session-divider" aria-hidden="true" />
             <span className="session-clock">{etClock} ET</span>
+          </div>
+
+          <div
+            className="theme-switcher"
+            role="radiogroup"
+            aria-label="Color scheme selector"
+          >
+            {THEMES.map((t) => (
+              <button
+                key={t.id}
+                id={`theme-opt-${t.id}`}
+                type="button"
+                role="radio"
+                aria-checked={themeId === t.id}
+                title={t.description}
+                className={`theme-chip${themeId === t.id ? ' active' : ''}`}
+                onClick={() => onSelectTheme(t.id)}
+              >
+                <span
+                  className="theme-swatch"
+                  style={{
+                    backgroundColor: t.swatchBg,
+                    boxShadow: `inset 0 0 0 2px ${t.swatchAccent}`,
+                  }}
+                  aria-hidden="true"
+                />
+                <span>{t.label}</span>
+              </button>
+            ))}
           </div>
 
           <button

@@ -2,6 +2,7 @@ import { memo, useMemo, useState } from 'react';
 import { Clock, ExternalLink, Maximize2, Minimize2, X, Zap } from 'lucide-react';
 import { IPO_CONSTANTS, TICKER_TAPE_SYMBOLS } from '../data/ipoData';
 import { getHlCoinForSymbol } from '../lib/hyperliquidFeed';
+import { THEME_MAP, type ThemeId } from '../lib/themes';
 import { RealtimeCandleChart } from './RealtimeCandleChart';
 import { TradingViewEmbed } from './TradingViewEmbed';
 
@@ -13,16 +14,19 @@ type ChartFeedMode = 'realtime' | 'tradingview';
 interface AdvancedChartPanelProps {
   activeSymbol: string;
   onSelectSymbol: (symbol: string) => void;
+  themeId: ThemeId;
 }
 
 function AdvancedChartPanelComponent({
   activeSymbol,
   onSelectSymbol,
+  themeId,
 }: AdvancedChartPanelProps) {
   const [feedMode, setFeedMode] = useState<ChartFeedMode>('realtime');
   const [expanded, setExpanded] = useState(false);
   const [showIpoNotice, setShowIpoNotice] = useState(true);
 
+  const palette = THEME_MAP[themeId];
   const hlCoin = getHlCoinForSymbol(activeSymbol);
   const effectiveMode: ChartFeedMode =
     feedMode === 'realtime' && hlCoin ? 'realtime' : 'tradingview';
@@ -34,11 +38,11 @@ function AdvancedChartPanelComponent({
         symbol: activeSymbol,
         interval: '5',
         timezone: 'America/New_York',
-        theme: 'dark',
+        theme: palette.tvTheme,
         style: '1',
         locale: 'en',
-        backgroundColor: '#0E1015',
-        gridColor: 'rgba(38, 43, 54, 0.42)',
+        backgroundColor: palette.chartBg,
+        gridColor: palette.chartGrid,
         hide_top_toolbar: false,
         hide_side_toolbar: false,
         allow_symbol_change: true,
@@ -53,7 +57,7 @@ function AdvancedChartPanelComponent({
         ],
         support_host: 'https://www.tradingview.com',
       }),
-    [activeSymbol],
+    [activeSymbol, palette.tvTheme, palette.chartBg, palette.chartGrid],
   );
 
   const externalChartUrl = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(activeSymbol)}`;
@@ -157,7 +161,7 @@ function AdvancedChartPanelComponent({
       {effectiveMode === 'tradingview' && isAntSelected && showIpoNotice && (
         <div className="ipo-cross-notice" role="note">
           <div className="ipo-cross-notice-text">
-            <Clock size={12} color="#DBA54C" style={{ flexShrink: 0 }} />
+            <Clock size={12} color={palette.amber} style={{ flexShrink: 0 }} />
             <span>
               <strong>TradingView Free Embed (15m Delay):</strong> US stock widgets use
               the 15-min delayed Cboe One feed. Switch back to{' '}
@@ -189,6 +193,7 @@ function AdvancedChartPanelComponent({
         <RealtimeCandleChart
           hlCoin={hlCoin}
           expanded={expanded}
+          themeId={themeId}
           onFallbackToTradingView={() => setFeedMode('tradingview')}
         />
       ) : (
@@ -208,15 +213,15 @@ function AdvancedChartPanelComponent({
         <div className="chart-footnote-levels">
           <span>KEY ANT LEVELS:</span>
           <span className="level-dot-item">
-            <span className="level-dot" style={{ backgroundColor: '#DBA54C' }} />
+            <span className="level-dot" style={{ backgroundColor: palette.amber }} />
             <span>PERP $97–$104</span>
           </span>
           <span className="level-dot-item">
-            <span className="level-dot" style={{ backgroundColor: '#34B889' }} />
+            <span className="level-dot" style={{ backgroundColor: palette.bull }} />
             <span>IPO $83.00</span>
           </span>
           <span className="level-dot-item">
-            <span className="level-dot" style={{ backgroundColor: '#DF6A73' }} />
+            <span className="level-dot" style={{ backgroundColor: palette.bear }} />
             <span>S-1 FLOOR $78 / $70</span>
           </span>
         </div>
