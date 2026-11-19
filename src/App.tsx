@@ -134,7 +134,7 @@ export function App() {
       {toastMessage && (
         <div className="toast-container" role="status" aria-live="polite">
           <div className="toast-pill">
-            <CheckCircle2 size={14} color="#10B981" />
+            <CheckCircle2 size={14} color="#34B889" />
             <span>{toastMessage}</span>
           </div>
         </div>

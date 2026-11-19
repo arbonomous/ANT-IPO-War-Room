@@ -37,8 +37,8 @@ function AdvancedChartPanelComponent({
         theme: 'dark',
         style: '1',
         locale: 'en',
-        backgroundColor: '#09090B',
-        gridColor: 'rgba(39, 39, 42, 0.45)',
+        backgroundColor: '#0E1015',
+        gridColor: 'rgba(38, 43, 54, 0.42)',
         hide_top_toolbar: false,
         hide_side_toolbar: false,
         allow_symbol_change: true,
@@ -157,7 +157,7 @@ function AdvancedChartPanelComponent({
       {effectiveMode === 'tradingview' && isAntSelected && showIpoNotice && (
         <div className="ipo-cross-notice" role="note">
           <div className="ipo-cross-notice-text">
-            <Clock size={12} color="#F59E0B" style={{ flexShrink: 0 }} />
+            <Clock size={12} color="#DBA54C" style={{ flexShrink: 0 }} />
             <span>
               <strong>TradingView Free Embed (15m Delay):</strong> US stock widgets use
               the 15-min delayed Cboe One feed. Switch back to{' '}
@@ -208,15 +208,15 @@ function AdvancedChartPanelComponent({
         <div className="chart-footnote-levels">
           <span>KEY ANT LEVELS:</span>
           <span className="level-dot-item">
-            <span className="level-dot" style={{ backgroundColor: '#F59E0B' }} />
+            <span className="level-dot" style={{ backgroundColor: '#DBA54C' }} />
             <span>PERP $97–$104</span>
           </span>
           <span className="level-dot-item">
-            <span className="level-dot" style={{ backgroundColor: '#10B981' }} />
+            <span className="level-dot" style={{ backgroundColor: '#34B889' }} />
             <span>IPO $83.00</span>
           </span>
           <span className="level-dot-item">
-            <span className="level-dot" style={{ backgroundColor: '#EF4444' }} />
+            <span className="level-dot" style={{ backgroundColor: '#DF6A73' }} />
             <span>S-1 FLOOR $78 / $70</span>
           </span>
         </div>

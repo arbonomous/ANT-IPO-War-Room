@@ -19,9 +19,9 @@ interface TechnicalGaugePanelProps {
 }
 
 function getVerdictColor(verdict: TechnicalSummary['verdict']): string {
-  if (verdict === 'STRONG BUY' || verdict === 'BUY') return '#10B981';
-  if (verdict === 'STRONG SELL' || verdict === 'SELL') return '#EF4444';
-  return '#A1A1AA';
+  if (verdict === 'STRONG BUY' || verdict === 'BUY') return '#34B889';
+  if (verdict === 'STRONG SELL' || verdict === 'SELL') return '#DF6A73';
+  return '#9AA3B2';
 }
 
 function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
@@ -33,8 +33,6 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
 
   useEffect(() => {
     if (!hlCoin) {
-      setSummary(null);
-      setLoading(false);
       return;
     }
 
@@ -95,7 +93,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
   const needleDeg = summary
     ? Math.max(-72, Math.min(72, summary.score * 78))
     : 0;
-  const verdictColor = summary ? getVerdictColor(summary.verdict) : '#A1A1AA';
+  const verdictColor = summary ? getVerdictColor(summary.verdict) : '#9AA3B2';
 
   return (
     <section
@@ -167,44 +165,44 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                   <path
                     d="M 24 126 A 106 106 0 0 1 65 42"
                     fill="none"
-                    stroke="#EF4444"
-                    strokeWidth="10"
-                    opacity="0.82"
+                    stroke="#DF6A73"
+                    strokeWidth="9.5"
+                    opacity="0.78"
                   />
                   <path
                     d="M 69 39 A 106 106 0 0 1 112 22"
                     fill="none"
-                    stroke="#F87171"
-                    strokeWidth="10"
-                    opacity="0.52"
+                    stroke="#DF6A73"
+                    strokeWidth="9.5"
+                    opacity="0.42"
                   />
                   <path
                     d="M 116 21 A 106 106 0 0 1 144 21"
                     fill="none"
-                    stroke="#71717A"
-                    strokeWidth="10"
-                    opacity="0.55"
+                    stroke="#6F7889"
+                    strokeWidth="9.5"
+                    opacity="0.52"
                   />
                   <path
                     d="M 148 22 A 106 106 0 0 1 191 39"
                     fill="none"
-                    stroke="#34D399"
-                    strokeWidth="10"
-                    opacity="0.62"
+                    stroke="#34B889"
+                    strokeWidth="9.5"
+                    opacity="0.48"
                   />
                   <path
                     d="M 195 42 A 106 106 0 0 1 236 126"
                     fill="none"
-                    stroke="#10B981"
-                    strokeWidth="10"
-                    opacity="0.92"
+                    stroke="#34B889"
+                    strokeWidth="9.5"
+                    opacity="0.82"
                   />
 
                   {/* Labels */}
                   <text
                     x="14"
                     y="140"
-                    fill="#EF4444"
+                    fill="#DF6A73"
                     fontSize="8.5"
                     fontFamily="JetBrains Mono, monospace"
                     fontWeight="700"
@@ -214,7 +212,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                   <text
                     x="130"
                     y="12"
-                    fill="#71717A"
+                    fill="#6F7889"
                     fontSize="8.5"
                     fontFamily="JetBrains Mono, monospace"
                     textAnchor="middle"
@@ -224,7 +222,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                   <text
                     x="246"
                     y="140"
-                    fill="#10B981"
+                    fill="#34B889"
                     fontSize="8.5"
                     fontFamily="JetBrains Mono, monospace"
                     fontWeight="700"
@@ -243,7 +241,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                       y1="126"
                       x2="130"
                       y2="34"
-                      stroke="#FAFAFA"
+                      stroke="#E6E9EF"
                       strokeWidth="2.5"
                       strokeLinecap="round"
                     />
@@ -252,7 +250,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
                       cy="126"
                       r="5.5"
                       fill={verdictColor}
-                      stroke="#09090B"
+                      stroke="#0E1015"
                       strokeWidth="2"
                     />
                   </g>

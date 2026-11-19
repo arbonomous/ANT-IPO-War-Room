@@ -230,7 +230,7 @@ export function WarRoomFloorPanel({ onSelectPriceLevel }: WarRoomFloorPanelProps
       {/* Header Bar */}
       <div className="panel-header">
         <div className="panel-title-group">
-          <MessageSquare size={13} color="#10B981" aria-hidden="true" />
+          <MessageSquare size={13} color="#34B889" aria-hidden="true" />
           <h2 className="panel-title">WAR ROOM FLOOR // LIVE CHAT</h2>
           <span
             className={`panel-badge ${
@@ -271,7 +271,7 @@ export function WarRoomFloorPanel({ onSelectPriceLevel }: WarRoomFloorPanelProps
                 className="icon-action-btn"
                 title="Save callsign"
               >
-                <Check size={12} color="#10B981" />
+                <Check size={12} color="#34B889" />
               </button>
             </form>
           ) : (

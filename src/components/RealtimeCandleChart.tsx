@@ -94,32 +94,32 @@ function RealtimeCandleChartComponent({
 
     const chart: IChartApi = createChart(el, {
       layout: {
-        background: { type: ColorType.Solid, color: '#09090B' },
-        textColor: '#A1A1AA',
+        background: { type: ColorType.Solid, color: '#0E1015' },
+        textColor: '#9AA3B2',
         fontFamily: "'JetBrains Mono', ui-monospace, monospace",
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: 'rgba(39, 39, 42, 0.4)' },
-        horzLines: { color: 'rgba(39, 39, 42, 0.4)' },
+        vertLines: { color: 'rgba(38, 43, 54, 0.42)' },
+        horzLines: { color: 'rgba(38, 43, 54, 0.42)' },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: 'rgba(250, 250, 250, 0.25)',
-          labelBackgroundColor: '#27272A',
+          color: 'rgba(230, 233, 239, 0.22)',
+          labelBackgroundColor: '#262B36',
         },
         horzLine: {
-          color: 'rgba(250, 250, 250, 0.25)',
-          labelBackgroundColor: '#27272A',
+          color: 'rgba(230, 233, 239, 0.22)',
+          labelBackgroundColor: '#262B36',
         },
       },
       rightPriceScale: {
-        borderColor: '#27272A',
+        borderColor: '#262B36',
         scaleMargins: { top: 0.08, bottom: 0.22 },
       },
       timeScale: {
-        borderColor: '#27272A',
+        borderColor: '#262B36',
         timeVisible: true,
         secondsVisible: false,
       },
@@ -128,11 +128,11 @@ function RealtimeCandleChartComponent({
     });
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#10B981',
-      downColor: '#EF4444',
+      upColor: '#34B889',
+      downColor: '#DF6A73',
       borderVisible: false,
-      wickUpColor: '#10B981',
-      wickDownColor: '#EF4444',
+      wickUpColor: '#34B889',
+      wickDownColor: '#DF6A73',
     });
 
     const volumeSeries = chart.addSeries(HistogramSeries, {
@@ -144,7 +144,7 @@ function RealtimeCandleChartComponent({
     });
 
     const vwapSeries = chart.addSeries(LineSeries, {
-      color: '#F59E0B',
+      color: '#DBA54C',
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -153,7 +153,7 @@ function RealtimeCandleChartComponent({
     vwapSeriesRef.current = vwapSeries;
 
     const ema9Series = chart.addSeries(LineSeries, {
-      color: '#34D399',
+      color: '#5CC8A1',
       lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -162,7 +162,7 @@ function RealtimeCandleChartComponent({
     ema9SeriesRef.current = ema9Series;
 
     const ema21Series = chart.addSeries(LineSeries, {
-      color: '#60A5FA',
+      color: '#73A8E8',
       lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -174,7 +174,7 @@ function RealtimeCandleChartComponent({
     if (hlCoin === 'xyz:ANT') {
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.ipoOfferPrice,
-        color: '#10B981',
+        color: '#34B889',
         lineWidth: 1,
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
@@ -182,7 +182,7 @@ function RealtimeCandleChartComponent({
       });
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.s1RangeHigh,
-        color: '#F59E0B',
+        color: '#DBA54C',
         lineWidth: 1,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
@@ -190,7 +190,7 @@ function RealtimeCandleChartComponent({
       });
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.s1RangeLow,
-        color: '#EF4444',
+        color: '#DF6A73',
         lineWidth: 1,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
@@ -241,8 +241,8 @@ function RealtimeCandleChartComponent({
           value: c.volume,
           color:
             c.close >= c.open
-              ? 'rgba(16, 185, 129, 0.32)'
-              : 'rgba(239, 68, 68, 0.32)',
+              ? 'rgba(52, 184, 137, 0.28)'
+              : 'rgba(223, 106, 115, 0.28)',
         })),
       );
       vwapSeries.setData(
@@ -324,8 +324,8 @@ function RealtimeCandleChartComponent({
                 value: incoming.volume,
                 color:
                   incoming.close >= incoming.open
-                    ? 'rgba(16, 185, 129, 0.32)'
-                    : 'rgba(239, 68, 68, 0.32)',
+                    ? 'rgba(52, 184, 137, 0.28)'
+                    : 'rgba(223, 106, 115, 0.28)',
               });
               const vwapArr = computeSessionVwap(next);
               const ema9Arr = computeEma(next, 9);
