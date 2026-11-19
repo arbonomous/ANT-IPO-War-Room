@@ -171,16 +171,87 @@ body {
 
 .ticker-tape-bar {
   width: 100%;
-  min-height: 46px;
+  height: 38px;
   background-color: var(--bg-bar);
   border-bottom: 1px solid var(--border-hairline);
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.ticker-tape-bar .tradingview-widget-container {
-  width: 100%;
-  min-height: 46px;
+.ticker-marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: ticker-scroll-ltr 38s linear infinite;
+}
+
+.ticker-tape-bar:hover .ticker-marquee-track,
+.ticker-tape-bar:focus-within .ticker-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes ticker-scroll-ltr {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.ticker-marquee-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tape-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 16px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 120ms ease;
+}
+
+.tape-pill:hover {
+  background-color: var(--bg-hover);
+}
+
+.tape-pill--active {
+  background-color: var(--emerald-dim);
+}
+
+.tape-ticker {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.03em;
+}
+
+.tape-name {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tape-price {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.tape-change {
+  font-size: 11.5px;
+  font-weight: 700;
 }
 
 /* Compact Institutional Header Bar */

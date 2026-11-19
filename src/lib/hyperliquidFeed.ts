@@ -32,6 +32,8 @@ export const SYMBOL_TO_HL_COIN: Record<string, string | null> = {
   'NASDAQ:GOOGL': 'xyz:GOOGL',
   'NASDAQ:AMZN': 'xyz:AMZN',
   'NASDAQ:PLTR': 'xyz:PLTR',
+  'NASDAQ:META': 'xyz:META',
+  'NASDAQ:TSLA': 'xyz:TSLA',
   'NASDAQ:QQQ': null,
 };
 
@@ -120,6 +122,53 @@ export async function fetchHyperliquidAssetCtx(
     funding: parseNum(ctx.funding),
     updatedAt: Date.now(),
   };
+}
+
+/** Fetches live markPx & prevDayPx for all assets on a HIP-3 dex (e.g. "xyz") in one call */
+export async function fetchHyperliquidDexCtxMap(
+  dex = 'xyz',
+  signal?: AbortSignal,
+): Promise<Record<string, HlAssetCtx>> {
+  const res = await fetch(HL_INFO_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'metaAndAssetCtxs', dex }),
+    signal,
+  });
+
+  if (!res.ok) return {};
+  const data = (await res.json()) as [
+    { universe?: Array<{ name?: string }> },
+    Array<Record<string, unknown>>,
+  ];
+  if (!Array.isArray(data) || data.length < 2) return {};
+
+  const universe = data[0]?.universe ?? [];
+  const ctxs = data[1] ?? [];
+  const out: Record<string, HlAssetCtx> = {};
+  const now = Date.now();
+
+  for (let i = 0; i < universe.length; i++) {
+    const coin = universe[i]?.name;
+    const ctx = ctxs[i];
+    if (!coin || !ctx) continue;
+    const markPx = parseNum(ctx.markPx);
+    if (markPx <= 0) continue;
+
+    out[coin] = {
+      coin,
+      markPx,
+      midPx: parseNullableNum(ctx.midPx),
+      oraclePx: parseNullableNum(ctx.oraclePx),
+      prevDayPx: parseNullableNum(ctx.prevDayPx),
+      dayNtlVlm: parseNum(ctx.dayNtlVlm),
+      openInterest: parseNum(ctx.openInterest) * markPx,
+      funding: parseNum(ctx.funding),
+      updatedAt: now,
+    };
+  }
+
+  return out;
 }
 
 export async function fetchHyperliquidCandles(

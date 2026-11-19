@@ -106,8 +106,11 @@ export function App() {
 
   return (
     <div className="war-room-shell">
-      {/* Module 1: Top TradingView Ticker Tape + Compact Status Bar */}
-      <TradingViewTickerTape themeId={themeId} />
+      {/* Module 1: Top Live Scrolling Ticker Tape + Compact Status Bar */}
+      <TradingViewTickerTape
+        activeSymbol={activeSymbol}
+        onSelectSymbol={setActiveSymbol}
+      />
       <TerminalHeader
         onShareLink={handleShareLink}
         copied={copied}
