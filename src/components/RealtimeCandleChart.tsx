@@ -208,7 +208,7 @@ function RealtimeCandleChartComponent({
 
     const ema9Series = chart.addSeries(LineSeries, {
       color: p.ema9,
-      lineWidth: 1,
+      lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
       visible: showEmaRef.current,
@@ -217,7 +217,7 @@ function RealtimeCandleChartComponent({
 
     const ema21Series = chart.addSeries(LineSeries, {
       color: p.ema21,
-      lineWidth: 1,
+      lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
       visible: showEmaRef.current,
@@ -229,7 +229,7 @@ function RealtimeCandleChartComponent({
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.ipoOfferPrice,
         color: p.bull,
-        lineWidth: 1,
+        lineWidth: 2,
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
         title: 'IPO $83',
@@ -237,7 +237,7 @@ function RealtimeCandleChartComponent({
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.s1RangeHigh,
         color: p.amber,
-        lineWidth: 1,
+        lineWidth: 2,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
         title: 'S-1 $78',
@@ -245,7 +245,7 @@ function RealtimeCandleChartComponent({
       candleSeries.createPriceLine({
         price: IPO_CONSTANTS.s1RangeLow,
         color: p.bear,
-        lineWidth: 1,
+        lineWidth: 2,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
         title: 'S-1 $70',

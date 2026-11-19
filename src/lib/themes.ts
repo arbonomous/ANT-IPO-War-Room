@@ -1,4 +1,4 @@
-export type ThemeId = 'slate' | 'warm' | 'obsidian' | 'daylight';
+export type ThemeId = 'slate' | 'daylight';
 
 export interface ThemePalette {
   id: ThemeId;
@@ -29,74 +29,26 @@ export const THEMES: ThemePalette[] = [
   {
     id: 'slate',
     label: 'Slate',
-    description: 'Low-glare charcoal slate (default)',
-    swatchBg: '#151820',
-    swatchAccent: '#34B889',
+    description: 'Charcoal slate dark with crisp borders & bright chart lines',
+    swatchBg: '#161A24',
+    swatchAccent: '#3AD69F',
     tvTheme: 'dark',
     chartBg: '#0E1015',
-    chartText: '#9AA3B2',
-    chartGrid: 'rgba(38, 43, 54, 0.42)',
-    crosshair: 'rgba(230, 233, 239, 0.22)',
-    crosshairLabel: '#262B36',
-    border: '#262B36',
-    bull: '#34B889',
-    bear: '#DF6A73',
-    amber: '#DBA54C',
-    ema9: '#5CC8A1',
-    ema21: '#73A8E8',
-    volUp: 'rgba(52, 184, 137, 0.28)',
-    volDown: 'rgba(223, 106, 115, 0.28)',
-    needle: '#E6E9EF',
-    muted: '#6F7889',
+    chartText: '#B4BECE',
+    chartGrid: 'rgba(74, 86, 112, 0.52)',
+    crosshair: 'rgba(235, 240, 248, 0.42)',
+    crosshairLabel: '#3A4356',
+    border: '#3A4356',
+    bull: '#3AD69F',
+    bear: '#F2727D',
+    amber: '#F5BE58',
+    ema9: '#5CE2B4',
+    ema21: '#78B7FF',
+    volUp: 'rgba(58, 214, 159, 0.42)',
+    volDown: 'rgba(242, 114, 125, 0.42)',
+    needle: '#EEF2F8',
+    muted: '#8B96AA',
     themeColorMeta: '#0E1015',
-  },
-  {
-    id: 'warm',
-    label: 'Warm',
-    description: 'Soft espresso dark — easiest on eyes',
-    swatchBg: '#1C1916',
-    swatchAccent: '#D9A154',
-    tvTheme: 'dark',
-    chartBg: '#141210',
-    chartText: '#A89F94',
-    chartGrid: 'rgba(48, 43, 38, 0.48)',
-    crosshair: 'rgba(236, 230, 220, 0.22)',
-    crosshairLabel: '#302B26',
-    border: '#302B26',
-    bull: '#52A883',
-    bear: '#D67067',
-    amber: '#D9A154',
-    ema9: '#75C09F',
-    ema21: '#7EA7CC',
-    volUp: 'rgba(82, 168, 131, 0.28)',
-    volDown: 'rgba(214, 112, 103, 0.28)',
-    needle: '#ECE6DC',
-    muted: '#7D7469',
-    themeColorMeta: '#141210',
-  },
-  {
-    id: 'obsidian',
-    label: 'Obsidian',
-    description: 'High-contrast institutional terminal',
-    swatchBg: '#09090B',
-    swatchAccent: '#10B981',
-    tvTheme: 'dark',
-    chartBg: '#09090B',
-    chartText: '#A1A1AA',
-    chartGrid: 'rgba(39, 39, 42, 0.45)',
-    crosshair: 'rgba(250, 250, 250, 0.25)',
-    crosshairLabel: '#27272A',
-    border: '#27272A',
-    bull: '#10B981',
-    bear: '#EF4444',
-    amber: '#F59E0B',
-    ema9: '#34D399',
-    ema21: '#60A5FA',
-    volUp: 'rgba(16, 185, 129, 0.32)',
-    volDown: 'rgba(239, 68, 68, 0.32)',
-    needle: '#FAFAFA',
-    muted: '#71717A',
-    themeColorMeta: '#09090B',
   },
   {
     id: 'daylight',
@@ -126,9 +78,7 @@ export const THEMES: ThemePalette[] = [
 
 export const THEME_MAP: Record<ThemeId, ThemePalette> = {
   slate: THEMES[0],
-  warm: THEMES[1],
-  obsidian: THEMES[2],
-  daylight: THEMES[3],
+  daylight: THEMES[1],
 };
 
 const THEME_STORAGE_KEY = 'ant_war_room_theme_v1';
@@ -136,7 +86,7 @@ const THEME_STORAGE_KEY = 'ant_war_room_theme_v1';
 export function getInitialTheme(): ThemeId {
   try {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
-    if (saved === 'slate' || saved === 'warm' || saved === 'obsidian' || saved === 'daylight') {
+    if (saved === 'slate' || saved === 'daylight') {
       return saved;
     }
   } catch {
