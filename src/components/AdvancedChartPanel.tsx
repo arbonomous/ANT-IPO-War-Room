@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from 'react';
-import { ExternalLink, Maximize2, Minimize2 } from 'lucide-react';
-import { TICKER_TAPE_SYMBOLS } from '../data/ipoData';
+import { Clock, ExternalLink, Maximize2, Minimize2, X } from 'lucide-react';
+import { IPO_CONSTANTS, TICKER_TAPE_SYMBOLS } from '../data/ipoData';
 import { TradingViewEmbed } from './TradingViewEmbed';
 
 const ADVANCED_CHART_SCRIPT =
@@ -16,6 +16,7 @@ function AdvancedChartPanelComponent({
   onSelectSymbol,
 }: AdvancedChartPanelProps) {
   const [expanded, setExpanded] = useState(false);
+  const [showIpoNotice, setShowIpoNotice] = useState(true);
 
   const configJson = useMemo(
     () =>
@@ -47,10 +48,11 @@ function AdvancedChartPanelComponent({
   );
 
   const externalChartUrl = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(activeSymbol)}`;
+  const isAntSelected = activeSymbol === IPO_CONSTANTS.ticker;
 
   return (
     <section
-      className="terminal-card chart-column"
+      className="terminal-card"
       aria-label="Real-Time Candlestick Chart"
     >
       <div className="panel-header">
@@ -109,6 +111,39 @@ function AdvancedChartPanelComponent({
           </a>
         </div>
       </div>
+
+      {/* Helpful IPO Opening Cross & 15-min Cboe Feed Notice */}
+      {isAntSelected && showIpoNotice && (
+        <div className="ipo-cross-notice" role="note">
+          <div className="ipo-cross-notice-text">
+            <Clock size={12} color="#F59E0B" style={{ flexShrink: 0 }} />
+            <span>
+              <strong>IPO Opening Cross:</strong> NASDAQ IPOs begin trading after the
+              underwriter opening auction (typically 11:30 AM – 1:30 PM ET). Free
+              TradingView embeds use the 15-min delayed Cboe One feed, so{' '}
+              <span className="mono">ANT</span> candles populate ~15m after the first
+              print.
+            </span>
+          </div>
+          <div className="ipo-cross-notice-actions">
+            <button
+              type="button"
+              className="ipo-notice-peer-btn mono"
+              onClick={() => onSelectSymbol('NASDAQ:NVDA')}
+            >
+              Preview Live NVDA
+            </button>
+            <button
+              type="button"
+              className="ipo-notice-close"
+              onClick={() => setShowIpoNotice(false)}
+              aria-label="Dismiss IPO opening cross notice"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <div
         className={`chart-widget-frame${expanded ? ' chart-widget-frame--expanded' : ''}`}

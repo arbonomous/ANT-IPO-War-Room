@@ -25,6 +25,7 @@ function TechnicalGaugePanelComponent({ symbol }: TechnicalGaugePanelProps) {
         displayMode: 'single',
         locale: 'en',
         colorTheme: 'dark',
+        theme: 'dark',
       }),
     [interval, symbol],
   );

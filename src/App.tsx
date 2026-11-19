@@ -8,6 +8,7 @@ import { TerminalFooter } from './components/TerminalFooter';
 import { TerminalHeader } from './components/TerminalHeader';
 import { TradingViewTickerTape } from './components/TradingViewTickerTape';
 import { ValuationCalculatorPanel } from './components/ValuationCalculatorPanel';
+import { WarRoomFloorPanel } from './components/WarRoomFloorPanel';
 import { IPO_CONSTANTS } from './data/ipoData';
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
@@ -93,12 +94,15 @@ export function App() {
         {/* Module 2: IPO Reference & Key Battleground Levels Strip */}
         <BattlegroundStrip onSelectPriceLevel={handleSelectPriceLevel} />
 
-        {/* Module 3: 70% Live Chart / 30% Intelligence & Tools Split */}
+        {/* Module 3: 70% Live Chart + Floor Chat / 30% Intelligence & Tools Split */}
         <div className="workspace-grid">
-          <AdvancedChartPanel
-            activeSymbol={activeSymbol}
-            onSelectSymbol={setActiveSymbol}
-          />
+          <div className="chart-column">
+            <AdvancedChartPanel
+              activeSymbol={activeSymbol}
+              onSelectSymbol={setActiveSymbol}
+            />
+            <WarRoomFloorPanel onSelectPriceLevel={handleSelectPriceLevel} />
+          </div>
 
           <aside
             className="intelligence-column"

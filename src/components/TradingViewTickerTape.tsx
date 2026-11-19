@@ -17,6 +17,7 @@ function TradingViewTickerTapeComponent() {
         isTransparent: true,
         displayMode: 'adaptive',
         colorTheme: 'dark',
+        theme: 'dark',
         locale: 'en',
       }),
     [],
