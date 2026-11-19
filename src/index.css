@@ -1263,6 +1263,130 @@ body {
   height: 100%;
 }
 
+.ta-live-body {
+  padding: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.ta-loading-state {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.ta-gauge-box {
+  background-color: var(--bg-obsidian);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ta-gauge-svg {
+  width: 100%;
+  max-width: 245px;
+  height: auto;
+  display: block;
+}
+
+.ta-verdict {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.ta-summary-counts {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.ta-count-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.ta-count-label {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.ta-count-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ta-groups-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ta-group-card {
+  background-color: var(--bg-obsidian);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ta-group-title {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.ta-group-tally {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.ta-highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ta-ind-pill {
+  background-color: var(--bg-obsidian);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ta-ind-name {
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.ta-ind-val {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 /* ===========================
    FOOTER
    =========================== */
