@@ -46,7 +46,6 @@ async function copyTextToClipboard(text: string): Promise<boolean> {
 
 export function App() {
   const [themeId, setThemeId] = useState<ThemeId>(() => getInitialTheme());
-  const [activeSymbol, setActiveSymbol] = useState<string>(IPO_CONSTANTS.ticker);
   const [calcPriceInput, setCalcPriceInput] = useState<string>(
     IPO_CONSTANTS.ipoOfferPrice.toFixed(2),
   );
@@ -106,11 +105,8 @@ export function App() {
 
   return (
     <div className="war-room-shell">
-      {/* Module 1: Top Live Scrolling Ticker Tape + Compact Status Bar */}
-      <TradingViewTickerTape
-        activeSymbol={activeSymbol}
-        onSelectSymbol={setActiveSymbol}
-      />
+      {/* Module 1: Top Live Scrolling Market Context Tape + Compact Status Bar */}
+      <TradingViewTickerTape onSelectAntPrice={handleSelectPriceLevel} />
       <TerminalHeader
         onShareLink={handleShareLink}
         copied={copied}
@@ -128,11 +124,7 @@ export function App() {
         {/* Module 3: 70% Live Chart + Floor Chat / 30% Intelligence & Tools Split */}
         <div className="workspace-grid">
           <div className="chart-column">
-            <AdvancedChartPanel
-              activeSymbol={activeSymbol}
-              onSelectSymbol={setActiveSymbol}
-              themeId={themeId}
-            />
+            <AdvancedChartPanel themeId={themeId} />
             <WarRoomFloorPanel onSelectPriceLevel={handleSelectPriceLevel} />
           </div>
 
@@ -150,7 +142,7 @@ export function App() {
             />
 
             {/* Panel C — Live Technical Analysis Consensus Gauge */}
-            <TechnicalGaugePanel symbol={activeSymbol} themeId={themeId} />
+            <TechnicalGaugePanel symbol={IPO_CONSTANTS.ticker} themeId={themeId} />
           </aside>
         </div>
       </main>

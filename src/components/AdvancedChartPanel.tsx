@@ -1,7 +1,6 @@
 import { memo, useMemo, useState } from 'react';
 import { Clock, ExternalLink, Maximize2, Minimize2, X, Zap } from 'lucide-react';
-import { IPO_CONSTANTS, TICKER_TAPE_SYMBOLS } from '../data/ipoData';
-import { getHlCoinForSymbol } from '../lib/hyperliquidFeed';
+import { IPO_CONSTANTS } from '../data/ipoData';
 import { THEME_MAP, type ThemeId } from '../lib/themes';
 import { RealtimeCandleChart } from './RealtimeCandleChart';
 import { TradingViewEmbed } from './TradingViewEmbed';
@@ -12,30 +11,22 @@ const ADVANCED_CHART_SCRIPT =
 type ChartFeedMode = 'realtime' | 'tradingview';
 
 interface AdvancedChartPanelProps {
-  activeSymbol: string;
-  onSelectSymbol: (symbol: string) => void;
   themeId: ThemeId;
 }
 
-function AdvancedChartPanelComponent({
-  activeSymbol,
-  onSelectSymbol,
-  themeId,
-}: AdvancedChartPanelProps) {
+function AdvancedChartPanelComponent({ themeId }: AdvancedChartPanelProps) {
   const [feedMode, setFeedMode] = useState<ChartFeedMode>('realtime');
   const [expanded, setExpanded] = useState(false);
   const [showIpoNotice, setShowIpoNotice] = useState(true);
 
   const palette = THEME_MAP[themeId];
-  const hlCoin = getHlCoinForSymbol(activeSymbol);
-  const effectiveMode: ChartFeedMode =
-    feedMode === 'realtime' && hlCoin ? 'realtime' : 'tradingview';
+  const antSymbol = IPO_CONSTANTS.ticker;
 
   const configJson = useMemo(
     () =>
       JSON.stringify({
         autosize: true,
-        symbol: activeSymbol,
+        symbol: antSymbol,
         interval: '5',
         timezone: 'America/New_York',
         theme: palette.tvTheme,
@@ -57,43 +48,35 @@ function AdvancedChartPanelComponent({
         ],
         support_host: 'https://www.tradingview.com',
       }),
-    [activeSymbol, palette.tvTheme, palette.chartBg, palette.chartGrid],
+    [antSymbol, palette.tvTheme, palette.chartBg, palette.chartGrid],
   );
-
-  const externalChartUrl = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(activeSymbol)}`;
-  const isAntSelected = activeSymbol === IPO_CONSTANTS.ticker;
 
   return (
     <section
       className="terminal-card"
-      aria-label="Real-Time Candlestick Chart"
+      aria-label="Anthropic ANT Real-Time Candlestick Chart"
     >
       <div className="panel-header">
         <div className="panel-title-group">
           <h2 className="panel-title">LIVE EXECUTION CHART</h2>
           <span className="panel-badge panel-badge--emerald">
-            {effectiveMode === 'realtime' && hlCoin ? hlCoin : activeSymbol}
+            {feedMode === 'realtime' ? 'xyz:ANT' : antSymbol}
           </span>
 
           {/* 0-Delay Real-Time vs TradingView Embed Switcher */}
           <div
             className="feed-mode-toggle"
             role="tablist"
-            aria-label="Chart data feed mode"
+            aria-label="ANT chart data feed mode"
           >
             <button
               id="chart-mode-realtime"
               type="button"
               role="tab"
-              aria-selected={effectiveMode === 'realtime'}
-              disabled={!hlCoin}
-              className={`feed-mode-btn${effectiveMode === 'realtime' ? ' active-rt' : ''}`}
+              aria-selected={feedMode === 'realtime'}
+              className={`feed-mode-btn${feedMode === 'realtime' ? ' active-rt' : ''}`}
               onClick={() => setFeedMode('realtime')}
-              title={
-                hlCoin
-                  ? `0-delay live WebSocket candlesticks (${hlCoin})`
-                  : 'Real-time perp feed not available for QQQ'
-              }
+              title="0-delay live WebSocket candlesticks for Anthropic (xyz:ANT)"
             >
               <Zap size={10} />
               <span>0-DELAY LIVE</span>
@@ -102,10 +85,10 @@ function AdvancedChartPanelComponent({
               id="chart-mode-tradingview"
               type="button"
               role="tab"
-              aria-selected={effectiveMode === 'tradingview'}
-              className={`feed-mode-btn${effectiveMode === 'tradingview' ? ' active-tv' : ''}`}
+              aria-selected={feedMode === 'tradingview'}
+              className={`feed-mode-btn${feedMode === 'tradingview' ? ' active-tv' : ''}`}
               onClick={() => setFeedMode('tradingview')}
-              title="Official TradingView widget with drawing tools (15m delayed Cboe One US stocks)"
+              title="Official TradingView widget with drawing tools (15m delayed Cboe One)"
             >
               <span>TRADINGVIEW (15M)</span>
             </button>
@@ -113,26 +96,6 @@ function AdvancedChartPanelComponent({
         </div>
 
         <div className="chart-toolbar-right">
-          <div
-            className="symbol-switcher"
-            role="tablist"
-            aria-label="Quick symbol focus switcher"
-          >
-            {TICKER_TAPE_SYMBOLS.map((item) => (
-              <button
-                key={item.proName}
-                id={`chart-sym-${item.shortTicker.toLowerCase()}`}
-                type="button"
-                role="tab"
-                aria-selected={activeSymbol === item.proName}
-                className={`symbol-tab${activeSymbol === item.proName ? ' active' : ''}`}
-                onClick={() => onSelectSymbol(item.proName)}
-              >
-                {item.shortTicker}
-              </button>
-            ))}
-          </div>
-
           <button
             id="chart-height-toggle"
             type="button"
@@ -146,19 +109,19 @@ function AdvancedChartPanelComponent({
 
           <a
             id="chart-open-tv-link"
-            href={externalChartUrl}
+            href={IPO_CONSTANTS.tradingViewFullChartUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="icon-action-btn"
-            title={`Open ${activeSymbol} on TradingView`}
+            title="Open NASDAQ:ANT full-screen on TradingView"
           >
             <ExternalLink size={12} />
           </a>
         </div>
       </div>
 
-      {/* Show 15m Cboe delay notice only when user switches to TradingView embed mode on ANT */}
-      {effectiveMode === 'tradingview' && isAntSelected && showIpoNotice && (
+      {/* Show 15m Cboe delay notice only when user switches to TradingView embed mode */}
+      {feedMode === 'tradingview' && showIpoNotice && (
         <div className="ipo-cross-notice" role="note">
           <div className="ipo-cross-notice-text">
             <Clock size={12} color={palette.amber} style={{ flexShrink: 0 }} />
@@ -189,9 +152,9 @@ function AdvancedChartPanelComponent({
         </div>
       )}
 
-      {effectiveMode === 'realtime' && hlCoin ? (
+      {feedMode === 'realtime' ? (
         <RealtimeCandleChart
-          hlCoin={hlCoin}
+          hlCoin="xyz:ANT"
           expanded={expanded}
           themeId={themeId}
           onFallbackToTradingView={() => setFeedMode('tradingview')}
@@ -204,7 +167,7 @@ function AdvancedChartPanelComponent({
             scriptSrc={ADVANCED_CHART_SCRIPT}
             configJson={configJson}
             fillHeight
-            ariaLabel={`TradingView Advanced Real-Time Chart for ${activeSymbol}`}
+            ariaLabel="TradingView Advanced Real-Time Chart for NASDAQ:ANT"
           />
         </div>
       )}
@@ -226,7 +189,7 @@ function AdvancedChartPanelComponent({
           </span>
         </div>
         <span>
-          {effectiveMode === 'realtime'
+          {feedMode === 'realtime'
             ? 'FEED: HYPERLIQUID HIP-3 0-DELAY WEBSOCKET • VWAP • EMA 9/21 • RSI • VOL'
             : 'FEED: TRADINGVIEW CBOE ONE (15M DELAY) • VWAP • EMA/SMA • RSI • VOL'}
         </span>

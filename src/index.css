@@ -227,6 +227,14 @@ body {
   background-color: var(--bg-hover);
 }
 
+.tape-pill--static {
+  cursor: default;
+}
+
+.tape-pill--static:hover {
+  background-color: transparent;
+}
+
 .tape-pill--active {
   background-color: var(--emerald-dim);
 }

@@ -7,38 +7,29 @@ import {
 
 interface TapeItemDef {
   hlCoin: string;
-  symbol: string;
   ticker: string;
   name: string;
-  useIpoRef?: boolean;
+  isAnt?: boolean;
 }
 
 const TAPE_ITEMS: TapeItemDef[] = [
-  {
-    hlCoin: 'xyz:ANT',
-    symbol: 'NASDAQ:ANT',
-    ticker: 'ANT',
-    name: 'Anthropic',
-    useIpoRef: true,
-  },
-  { hlCoin: 'xyz:NVDA', symbol: 'NASDAQ:NVDA', ticker: 'NVDA', name: 'NVIDIA' },
-  { hlCoin: 'xyz:MSFT', symbol: 'NASDAQ:MSFT', ticker: 'MSFT', name: 'Microsoft' },
-  { hlCoin: 'xyz:GOOGL', symbol: 'NASDAQ:GOOGL', ticker: 'GOOGL', name: 'Alphabet' },
-  { hlCoin: 'xyz:AMZN', symbol: 'NASDAQ:AMZN', ticker: 'AMZN', name: 'Amazon' },
-  { hlCoin: 'xyz:PLTR', symbol: 'NASDAQ:PLTR', ticker: 'PLTR', name: 'Palantir' },
-  { hlCoin: 'xyz:XYZ100', symbol: 'NASDAQ:QQQ', ticker: 'NDX100', name: 'Nasdaq 100' },
-  { hlCoin: 'xyz:META', symbol: 'NASDAQ:META', ticker: 'META', name: 'Meta' },
-  { hlCoin: 'xyz:TSLA', symbol: 'NASDAQ:TSLA', ticker: 'TSLA', name: 'Tesla' },
+  { hlCoin: 'xyz:ANT', ticker: 'ANT', name: 'Anthropic', isAnt: true },
+  { hlCoin: 'xyz:NVDA', ticker: 'NVDA', name: 'NVIDIA' },
+  { hlCoin: 'xyz:MSFT', ticker: 'MSFT', name: 'Microsoft' },
+  { hlCoin: 'xyz:GOOGL', ticker: 'GOOGL', name: 'Alphabet' },
+  { hlCoin: 'xyz:AMZN', ticker: 'AMZN', name: 'Amazon' },
+  { hlCoin: 'xyz:PLTR', ticker: 'PLTR', name: 'Palantir' },
+  { hlCoin: 'xyz:XYZ100', ticker: 'NDX100', name: 'Nasdaq 100' },
+  { hlCoin: 'xyz:META', ticker: 'META', name: 'Meta' },
+  { hlCoin: 'xyz:TSLA', ticker: 'TSLA', name: 'Tesla' },
 ];
 
 interface TradingViewTickerTapeProps {
-  activeSymbol: string;
-  onSelectSymbol: (symbol: string) => void;
+  onSelectAntPrice?: (price: number) => void;
 }
 
 function TradingViewTickerTapeComponent({
-  activeSymbol,
-  onSelectSymbol,
+  onSelectAntPrice,
 }: TradingViewTickerTapeProps) {
   const [ctxMap, setCtxMap] = useState<Record<string, HlAssetCtx>>({});
 
@@ -77,7 +68,7 @@ function TradingViewTickerTapeComponent({
       {TAPE_ITEMS.map((item) => {
         const ctx = ctxMap[item.hlCoin];
         const price = ctx?.markPx ?? null;
-        const baseRef = item.useIpoRef
+        const baseRef = item.isAnt
           ? IPO_CONSTANTS.ipoOfferPrice
           : (ctx?.prevDayPx ?? null);
 
@@ -90,23 +81,45 @@ function TradingViewTickerTapeComponent({
             ? (diff / baseRef) * 100
             : null;
         const isUp = diff !== null && diff >= 0;
-        const isSelected = activeSymbol === item.symbol;
+
+        if (item.isAnt && price !== null && onSelectAntPrice) {
+          return (
+            <button
+              key={`${copyIndex}-${item.hlCoin}`}
+              type="button"
+              tabIndex={copyIndex > 0 ? -1 : 0}
+              className="tape-pill tape-pill--active"
+              onClick={() => onSelectAntPrice(price)}
+              title="Click to load live ANT price into Implied Valuation Calc"
+            >
+              <span className="tape-ticker mono">{item.ticker}</span>
+              <span className="tape-name">{item.name}</span>
+              <span className="tape-price mono">${price.toFixed(2)}</span>
+              {pct !== null && (
+                <span
+                  className={`tape-change mono ${
+                    isUp ? 'text-emerald' : 'text-crimson'
+                  }`}
+                >
+                  {isUp ? '+' : ''}
+                  {pct.toFixed(2)}%
+                </span>
+              )}
+            </button>
+          );
+        }
 
         return (
-          <button
+          <div
             key={`${copyIndex}-${item.hlCoin}`}
-            type="button"
-            tabIndex={copyIndex > 0 ? -1 : 0}
-            className={`tape-pill${isSelected ? ' tape-pill--active' : ''}`}
-            onClick={() => onSelectSymbol(item.symbol)}
-            title={`Click to view ${item.name} (${item.ticker}) on the chart — hover pauses tape`}
+            className={`tape-pill tape-pill--static${item.isAnt ? ' tape-pill--active' : ''}`}
           >
             <span className="tape-ticker mono">{item.ticker}</span>
             <span className="tape-name">{item.name}</span>
             <span className="tape-price mono">
               {price !== null ? `$${price.toFixed(2)}` : '—'}
             </span>
-            {pct !== null && diff !== null && (
+            {pct !== null && (
               <span
                 className={`tape-change mono ${
                   isUp ? 'text-emerald' : 'text-crimson'
@@ -116,7 +129,7 @@ function TradingViewTickerTapeComponent({
                 {pct.toFixed(2)}%
               </span>
             )}
-          </button>
+          </div>
         );
       })}
     </div>
@@ -126,7 +139,7 @@ function TradingViewTickerTapeComponent({
     <div
       className="ticker-tape-bar"
       role="region"
-      aria-label="Live Scrolling Stock Ticker Tape — hover to pause"
+      aria-label="Live Scrolling AI & Market Context Ticker Tape — hover to pause"
     >
       <div className="ticker-marquee-track">
         {renderGroup(0)}
